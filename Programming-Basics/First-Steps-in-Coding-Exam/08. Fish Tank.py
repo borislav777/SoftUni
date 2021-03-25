@@ -1,0 +1,9 @@
+large=int(input())
+width=int(input())
+height=int(input())
+busy_precent=float(input())
+obem=large*width*height
+litri=obem*0.001
+precent=busy_precent*0.01
+nujni_litri=litri*(1-precent)
+print(nujni_litri)

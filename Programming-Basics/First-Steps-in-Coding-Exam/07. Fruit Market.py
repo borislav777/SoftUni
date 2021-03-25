@@ -1,0 +1,10 @@
+price_strawberry=float(input())
+quantity_bananas=float(input())
+quantity_orange=float(input())
+quantity_malini=float(input())
+quantity_strawberry=float(input())
+price_malini=price_strawberry/2
+price_oramge=price_malini*0.6
+price_bananas=price_malini*0.2
+cash=quantity_strawberry*price_strawberry+quantity_malini*price_malini+quantity_orange*price_oramge+quantity_bananas*price_bananas
+print(cash)
