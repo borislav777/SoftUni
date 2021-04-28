@@ -9,8 +9,8 @@ for p in parentheses:
         if not stack:
             is_balanced = False
             break
-        curr_parenthes = stack.pop()
-        if not mapper[curr_parenthes] == p:
+        curr_parentheses = stack.pop()
+        if not mapper[curr_parentheses] == p:
             is_balanced = False
             break
 if is_balanced:
