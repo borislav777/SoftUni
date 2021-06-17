@@ -1,0 +1,1 @@
+print(*[f"{name} -> {len(name)}" for name in input().split(", ")], sep=", ")
