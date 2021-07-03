@@ -1,0 +1,3 @@
+{"id":1, "name":"phone", "img_path": "phone.jpg", "count": 5}
+{"id":2, "name":"grill", "img_path": "grill.jpg", "count":15 }
+{"id":1, "name":"tv", "img_path": "tv.jpg", "count": 10}
