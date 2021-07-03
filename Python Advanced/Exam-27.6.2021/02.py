@@ -56,6 +56,8 @@ for _ in range(number_commands):
                 break
             new_row += s_directions[direction][0]
             new_col += s_directions[direction][1]
+        if target_count <= 0:
+            break
     if target_count <= 0:
         break
 
