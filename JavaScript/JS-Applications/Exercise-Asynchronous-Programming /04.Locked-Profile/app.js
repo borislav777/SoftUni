@@ -3,14 +3,14 @@ async function lockedProfile() {
     main.replaceChildren();
     main.addEventListener('click',showMore);
     const profiles = await getProfileInfo();
-
+    let counter = 1;
     for (const profile of Object.values(profiles)) {
-        let counter = 1;
+        counter ++;
         const divProfile = document.createElement('div');
         divProfile.className = 'profile';
         divProfile.appendChild(newElement('img',{src:'./iconProfile2.png',className:'userIcon'}))
         divProfile.appendChild(newElement('label',{},'Lock'));
-        divProfile.appendChild(newElement('input',{type:'radio',name:`user${counter}Locked`,value:'lock'}));
+        divProfile.appendChild(newElement('input',{type:'radio',name:`user${counter}Locked`,value:'lock',checked:true}));
         divProfile.appendChild(newElement('label',{},'Unlock'));
         divProfile.appendChild(newElement('input',{type:'radio',name:`user${counter}Locked`,value:'unlock'}));
         divProfile.appendChild(newElement('br',{}));
