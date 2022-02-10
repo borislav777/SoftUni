@@ -1,7 +1,7 @@
 from django.core.validators import MinLengthValidator
 from django.db import models
 
-from petstagram_workshop.main_app.validators import validate_only_letters_use,validate_file_max_size_in_mb
+from petstagram_workshop.main_app.validators import validate_only_letters_use,ValidateFileMaxSizeInMb
 
 
 class Profile(models.Model):
@@ -50,7 +50,10 @@ class Profile(models.Model):
 
     gender = models.CharField(
         max_length=max(len(x) for x, _ in GENDERS),
-        choices=GENDERS
+        choices=GENDERS,
+        blank=True,
+
+
     )
 
     def __str__(self):
@@ -89,15 +92,19 @@ class Pet(models.Model):
         on_delete=models.CASCADE,
     )
 
+    def __str__(self):
+        return f'{self.name}'
+
     class Meta:
         unique_together = ('user_profile', 'name')
 
 
 class PetPhoto(models.Model):
     photo = models.ImageField(
+        upload_to='profile',
         validators=(
-            # validate_file_max_size_in_mb,
-        )
+            ValidateFileMaxSizeInMb(5),
+        ),
     )
 
     description = models.TextField(
@@ -114,6 +121,7 @@ class PetPhoto(models.Model):
     )
 
     tagged_pets = models.ManyToManyField(
-        Pet
+        Pet,
+
 
     )

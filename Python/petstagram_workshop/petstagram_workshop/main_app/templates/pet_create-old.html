@@ -1,4 +1,3 @@
-{% load profiles %}
 <!DOCTYPE html>
 <html lang="en">
 
@@ -15,50 +14,68 @@
 </head>
 
 <body>
-
 <!-- Navigation Bar -->
 <nav class="navbar navbar-expand-lg navbar-light bg-light" style="margin-bottom:2%">
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavDropdown"
             aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
     </button>
-    {% has_profile as hp %}
     <div class="collapse navbar-collapse" id="navbarNavDropdown">
         <ul class="navbar-nav">
             <li class="nav-item">
-                <a class="nav-link" href="{% url 'index' %}">Home</a>
+                <a class="nav-link" href="#">Home</a>
             </li>
-            {% if hp %}
-                <li class="nav-item">
-                    <a class="nav-link" href="{% url 'dashboard' %}">Dashboard</a>
-                </li>
-                {% if not hide_additional_nav_items %}
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'add pet' %}">Add Pet</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'add pet photo' %}">Add Photo</a>
-                    </li>
-                {% endif %}
-                <li class="nav-item">
-                    <a class="nav-link" href="{% url 'profile' %}">Profile</a>
-                </li>
-            {% endif %}
+            <li class="nav-item">
+                <a class="nav-link" href="#">Dashboard</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#">Add Pet</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#">Add Photo</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#">Profile</a>
+            </li>
         </ul>
     </div>
 </nav>
 <!-- End Navigation Bar -->
 
 <div class="container">
-    {% block page_content %}
-    {% endblock %}
-</div>
+    <h1 class="text-center">Add new pet photo</h1>
+    <div class="row">
+        <div class="col-lg-3"></div>
+        <div class="col-lg-6">
 
-<!-- Page Footer -->
-<footer class="fixed-bottom card-footer ">
-    <div>@2022 Python Web Basics Workshop at SoftUni</div>
-</footer>
-<!-- End Page Footer -->
+            <!-- Form for Adding Pet -->
+            <form method="post" action="profile_details.html">
+                <div class="form-group">
+                    <label for="name">Pet Name</label>
+                    <input type="text" class="form-control" name="first_name" placeholder="Enter name"
+                           id="name"/>
+                </div>
+                <div class="form-group">
+                    <label for="type_animal" class="col-form-label">Type:
+                    <select class="form-select">
+                        <option value="first">Cat</option>
+                        <option value="second">Dog</option>
+                        <option value="third">Mouse</option>
+                    </select></label>
+                </div>
+                <div class="form-group">
+                    <label for="age">Day of Birth:</label>
+                    <input type="date" class="form-control" name="age" placeholder=""
+                           id="age"/>
+                </div>
+
+                <button class="btn btn-primary mt-2" type="submit">Create</button>
+            </form>
+            <!-- End Form for Adding Pet -->
+        </div>
+        <div class="col-lg-3"></div>
+    </div>
+</div>
 
 <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
         integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"

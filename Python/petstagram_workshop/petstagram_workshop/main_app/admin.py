@@ -1,6 +1,9 @@
+
 from django.contrib import admin
 
 from petstagram_workshop.main_app.models import Profile, Pet, PetPhoto
+
+
 
 
 class PetInlineAdmin(admin.StackedInline):
@@ -10,7 +13,7 @@ class PetInlineAdmin(admin.StackedInline):
 @admin.register(Profile)
 class ProfileAdmin(admin.ModelAdmin):
     inlines = (PetInlineAdmin,)
-    list_display = ('first_name','last_name')
+    list_display = ('first_name', 'last_name')
 
 
 @admin.register(Pet)

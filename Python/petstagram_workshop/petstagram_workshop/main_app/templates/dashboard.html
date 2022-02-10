@@ -20,7 +20,7 @@
                 <!-- First Card with Info for the Pet -->
                     <div class="card ml-3 mb-3" style="width: 18rem;">
                         <!-- Image -->
-                        <img src="{{ pet_photo.photo }}"
+                        <img src="{{ pet_photo.photo.url }}"
                              class="card-img-top" alt="Photo description">
                         <div class="card-body">
                             {% for pet in pet_photo.tagged_pets.all %}
@@ -43,7 +43,7 @@
 
         <div class=" row d-flex justify-content-center align-content-center">
             <!-- Button to Add a new Photo -->
-            <a href="#" class="btn btn-lg btn-secondary row align-self-baseline">Add Photo</a>
+            <a href="{% url 'add pet photo' %}" class="btn btn-lg btn-secondary row align-self-baseline">Add Photo</a>
         </div>
     {% endif %}
 
