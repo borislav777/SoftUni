@@ -1,120 +1,62 @@
+from django.contrib.auth import mixins as auth_mixin
+from django.urls import reverse_lazy
+from django.views import generic as views
 from django.shortcuts import render, redirect
 
-from petstagram_workshop.forms import CreateForm, AddPet, AddPhoto, EditPhoto, DeletePet, EditProfile
-from petstagram_workshop.main_app.models import Profile, PetPhoto, Pet
-import sys
+from petstagram_workshop.common.viewmixins import RedirectToDashboard
+from petstagram_workshop.forms import AddPet, AddPhoto, EditPhoto, DeletePet, EditPet
+from petstagram_workshop.main_app.models import PetPhoto, Like
 
 
-def get_profile():
-    profile = Profile.objects.all()
-    if profile:
-        return profile[0]
-    return None
+class HomeView(RedirectToDashboard, views.TemplateView):
+    template_name = 'main/home_page.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['hide_additional_nav_items'] = True
+        return context
 
 
-def show_home(request):
-    context = {
-        'hide_additional_nav_items': True,
-    }
-    return render(request, 'home_page.html', context)
+class DashboardView(views.ListView):
+    model = PetPhoto
+    template_name = 'main/dashboard.html'
+    context_object_name = 'pet_photos'
 
 
-def show_dashboard(request):
-    profile = get_profile()
-    pet_photos = set(PetPhoto.objects.prefetch_related('tagged_pets') \
-                     .filter(tagged_pets__user_profile=profile))
+class PetPhotoDetailsView(auth_mixin.LoginRequiredMixin, views.DetailView):
+    model = PetPhoto
+    template_name = 'main/photo_details.html'
+    context_object_name = 'pet_photo'
 
-    context = {
-        'pet_photos': pet_photos,
-    }
-    return render(request, 'dashboard.html', context)
+    def get_queryset(self):
+        return super().get_queryset().prefetch_related('tagged_pets')
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['is_owner'] = self.object.user == self.request.user
+        context['is_like'] = Like.objects.filter(user=self.request.user)
 
-def show_profile(request):
-    profile = get_profile()
-    pets = set(Pet.objects.filter(user_profile_id=profile))
-    pet_photos = set(PetPhoto.objects.filter(tagged_pets__user_profile=profile))
-    total_image = len(pet_photos)
-    total_likes = sum([x.likes for x in pet_photos])
-    context = {
-        'profile': profile,
-        'pets': pets,
-        'total_image': total_image,
-        'total_like': total_likes,
-    }
-    return render(request, 'profile_details.html', context)
+        return context
 
 
-def show_pet_photo_details(request, pk):
-    pet_photo = PetPhoto.objects.prefetch_related('tagged_pets').get(pk=pk)
-    context = {
-        'pet_photo': pet_photo,
-    }
+class CreatePetPhotoView(auth_mixin.LoginRequiredMixin, views.CreateView):
+    template_name = 'main/photo_create.html'
+    model = AddPhoto
+    form_class = AddPhoto
+    success_url = reverse_lazy('dashboard')
 
-    return render(request, 'photo_details.html', context)
-
-
-def create_profile(request):
-    if request.method == 'POST':
-        create_form = CreateForm(request.POST)
-        if create_form.is_valid():
-            create_form.save()
-            return redirect('index')
-    else:
-        create_form = CreateForm()
-
-    context = {
-        'create_form': create_form,
-    }
-    return render(request, 'profile_create.html', context)
+    def form_valid(self, form):
+        form.instance.user = self.request.user
+        return super().form_valid(form)
 
 
-def add_pet(request):
-    if request.method == 'POST':
-        add_form = AddPet(request.POST)
-        if add_form.is_valid():
-            add_form.save()
-            return redirect('profile')
-    else:
-        add_form = AddPet(initial={'user_profile': get_profile()})
+class EditPetPhotoView(views.UpdateView):
+    model = PetPhoto
+    template_name = 'main/photo_edit.html'
+    form_class = EditPhoto
 
-    context = {
-        'add_form': add_form,
-    }
-    return render(request, 'pet_create.html', context)
-
-
-def add_pet_photo(request):
-    if request.method == 'POST':
-        add_photo = AddPhoto(request.POST, request.FILES)
-        if add_photo.is_valid():
-            add_photo.save()
-            return redirect('dashboard')
-    else:
-        add_photo = AddPhoto()
-
-    context = {
-        'add_photo': add_photo,
-    }
-    return render(request, 'photo_create.html', context)
-
-
-def edit_pet_photo(request, pk):
-    photo = PetPhoto.objects.get(pk=pk)
-    if request.method == 'POST':
-        edit_photo = EditPhoto(request.POST, instance=photo)
-        if edit_photo.is_valid():
-            edit_photo.save()
-            return redirect('pet photo details', pk)
-    else:
-        edit_photo = EditPhoto(instance=photo)
-
-    context = {
-        'photo': photo,
-        'edit_photo': edit_photo,
-    }
-
-    return render(request, 'photo_edit.html', context)
+    def get_success_url(self):
+        return reverse_lazy('pet photo details', kwargs={'pk': self.object.id})
 
 
 def delete_pet_photo(request, pk):
@@ -124,76 +66,36 @@ def delete_pet_photo(request, pk):
     return redirect('dashboard')
 
 
-def edit_pet_page(request, pk):
-    pet = Pet.objects.get(pk=pk)
-    if request.method == 'POST':
-        edit_pet = AddPet(request.POST, instance=pet)
-        if edit_pet.is_valid():
-            edit_pet.save()
-            return redirect('profile')
-    else:
-        edit_pet = AddPet(instance=pet)
+class CreatePetView(views.CreateView):
+    template_name = 'main/pet_create.html'
+    form_class = AddPet
 
-    context = {
-        'pet': pet,
-        'edit_pet': edit_pet,
-    }
-    return render(request, 'pet_edit.html', context)
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['user'] = self.request.user
+        return kwargs
+
+    success_url = reverse_lazy('dashboard')
 
 
-def delete_pet_page(request, pk):
-    pet = Pet.objects.get(pk=pk)
-    if request.method == 'POST':
-
-        pet.delete()
-        return redirect('profile')
-    else:
-        delete_pet = DeletePet(instance=pet)
-
-    context = {
-        'delete_pet': delete_pet,
-        'pet': pet,
-    }
-
-    return render(request, 'pet_delete.html', context)
+class EditPetView(views.UpdateView):
+    template_name = 'main/pet_edit.html'
+    form_class = EditPet
 
 
-def edit_profile_page(request):
-    profile = get_profile()
-    if request.method == 'POST':
-        edit_profile = EditProfile(request.POST, instance=profile)
-        if edit_profile.is_valid():
-            edit_profile.save()
-            return redirect('profile')
-    else:
-        edit_profile = EditProfile(instance=profile, initial={'gender': 'Do not show'})
-
-    context = {
-        'edit_profile': edit_profile,
-
-    }
-
-    return render(request, 'profile_edit.html', context)
-
-
-def page_not_found(request, exception):
-    return render(request, '401_error.html')
-
-
-def delete_profile_page(request):
-    profile = get_profile()
-
-    if request.method == 'POST':
-        profile.delete()
-        [p.delete() for p in list(PetPhoto.objects.filter(tagged_pets__user_profile=profile))]
-        return redirect('index')
-
-    return render(request, 'profile_delete.html')
+class DeletePetView(views.DeleteView):
+    template_name = 'main/pet_delete.html'
+    form_class = DeletePet
 
 
 def like_pet_photo(request, pk):
-    pet_photo = PetPhoto.objects.get(pk=pk)
-    pet_photo.likes += 1
-    pet_photo.save()
+    new_like, created = Like.objects.get_or_create(user=request.user, photo_id=pk)
+    if created:
+        pet_photo = PetPhoto.objects.get(pk=pk)
+        pet_photo.likes += 1
+        pet_photo.save()
 
     return redirect('pet photo details', pk)
+
+
+

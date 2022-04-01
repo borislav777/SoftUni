@@ -1,82 +1,59 @@
 from django import forms
 
-from petstagram_workshop.main_app.models import Profile, Pet, PetPhoto
+
+from petstagram_workshop.main_app.models import  Pet, PetPhoto
 
 
 
 
-class CreateForm(forms.ModelForm):
+class AddPet(forms.ModelForm):
+    def __init__(self, user, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.user = user
+
+    def save(self, commit=True):
+        pet = super().save(commit=False)
+
+        pet.user = self.user
+        if commit:
+            pet.save()
+        return pet
+
     class Meta:
-        model = Profile
-        fields = ('first_name', 'last_name', 'picture')
+        model = Pet
+        exclude = ('user',)
+        labels = {
+            'name': 'Pet Name',
+            'date_of_birth': 'Day of Birth',
+        }
         widgets = {
-            'first_name': forms.TextInput(
+            'name': forms.TextInput(
+
                 attrs={
                     'class': 'form-control',
-                    'placeholder': 'Enter first name'
-                },
-            ),
-            'last_name': forms.TextInput(
-                attrs={
-                    'class': 'form-control',
-                    'placeholder': 'Enter last name'
+                    'placeholder': 'Enter pet name'
                 }
             ),
-            'picture': forms.URLInput(
+            'type': forms.Select(
                 attrs={
                     'class': 'form-control',
-                    'placeholder': 'Enter URL'
+
                 }
-            )
+
+            ),
+            'date_of_birth': forms.SelectDateWidget(
+
+                years=[x for x in range(1920, 2023)],
+                attrs={
+                    'class': 'form-control',
+
+                }
+            ),
+
         }
 
 
-# class AddPet(forms.Form):
-#     CAT = "Cat"
-#     DOG = "Dog"
-#     BUNNY = "Bunny"
-#     PARROT = "Parrot"
-#     FISH = "Fish"
-#     OTHER = "Other"
-#     TYPE = [(x, x) for x in (CAT, DOG, BUNNY, PARROT, FISH, OTHER)]
-#
-#     pet_name = forms.CharField(
-#         max_length=30,
-#         widget=forms.TextInput(
-#             attrs={
-#                 'class': 'form-control',
-#                 'placeholder': 'Enter pet name'
-#             }
-#         )
-#
-#     )
-#     type = forms.ChoiceField(
-#
-#         choices=TYPE,
-#
-#         widget=forms.Select(
-#
-#             attrs={
-#                 'class': 'form-control',
-#                 'selected': 'HKJHKH',
-#
-#             }
-#         ),
-#
-#     )
-#     day_of_birth = forms.DateTimeField(
-#         widget=forms.SelectDateWidget(
-#             years=[x for x in range(1920, 2023)],
-#             attrs={
-#                 'class': 'form-control',
-#                 'placeholder': '----'
-#
-#             }
-#
-#         )
-#     )
-
-class AddPet(forms.ModelForm):
+class EditPet(forms.ModelForm):
     class Meta:
         model = Pet
         fields = '__all__'
@@ -107,7 +84,7 @@ class AddPet(forms.ModelForm):
 
                 }
             ),
-            'user_profile': forms.HiddenInput()
+            'user': forms.HiddenInput()
         }
 
 
@@ -202,56 +179,4 @@ class DeletePet(AddPet):
         }
 
 
-class EditProfile(CreateForm):
-    class Meta:
-        model = Profile
-        fields = '__all__'
-        labels = {
-            'picture': 'Link to Profile Picture',
-        }
-        widgets = {
-            'first_name': forms.TextInput(
-                attrs={
-                    'class': 'form-control',
 
-                },
-            ),
-            'last_name': forms.TextInput(
-                attrs={
-                    'class': 'form-control',
-
-                }
-            ),
-            'picture': forms.URLInput(
-                attrs={
-                    'class': 'form-control',
-
-                }
-            ),
-            'date_of_birth': forms.SelectDateWidget(
-                years=[x for x in range(1920, 2023)],
-                attrs={
-                    'class': 'form-control',
-                }
-            ),
-            'email': forms.EmailInput(
-                attrs={
-                    'class': 'form-control',
-                    'placeholder': 'Enter email',
-                }
-            ),
-            'gender': forms.Select(
-                attrs={
-                    'class': 'form-control',
-                    'selected': 'Do not show',
-                }
-            ),
-
-            'description': forms.Textarea(
-                attrs={
-                    'class': 'form-control',
-                    'placeholder': 'Enter description',
-                    'rows': 3,
-                }
-            )
-        }
